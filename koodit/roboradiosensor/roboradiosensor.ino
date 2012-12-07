@@ -20,12 +20,14 @@
 // # 
 // # Note: You should connect the GND pin from the DF-MD v1.3 to your MCU controller. They should share the GND pins.
 // #
+#include <Ultrasonic.h>
 
+Ultrasonic ultrasonic(8);
 int E1 = 6;
 int M1 = 7;
 int E2 = 5;                         
 int M2 = 4;
-int sonar = 8;
+
 signed char x = 0;
 signed char y = 0;
 int ohjausR =0;
@@ -97,11 +99,18 @@ void loop()
   if(y>0){
     digitalWrite(M1,HIGH);
     digitalWrite(M2,HIGH);
-   
+    
+    
   }
   if(y<0){
     digitalWrite(M1,LOW);
     digitalWrite(M2,LOW);
+    ultrasonic.MeasureInCentimeters();
+    if(ultrasonic.RangeInCentimeters<10){
+      
+      digitalWrite(M1,HIGH);
+    digitalWrite(M2,HIGH);
+    }
     tempy=-y;
   }
  
@@ -125,6 +134,7 @@ void loop()
   analogWrite(E2, ohjausL*2); 
    
   }
+  ultrasonic.MeasureInCentimeters();
   Serial.println(ultrasonic.RangeInCentimeters);
   /**
   int ohjausX=x;

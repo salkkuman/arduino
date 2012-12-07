@@ -20,16 +20,17 @@
 // # 
 // # Note: You should connect the GND pin from the DF-MD v1.3 to your MCU controller. They should share the GND pins.
 // #
-
+#include <Ultrasonic.h>
+Ultrasonic ultrasonic(7);
 int E1 = 6;
 int M1 = 7;
 int E2 = 5;                         
 int M2 = 4;
-int sonar = 8;
-signed char x = 0;
-signed char y = 0;
-int ohjausR =0;
-int ohjausL =0;
+int sonar = 13;
+signed char x = 125;
+signed char y = 125;
+int vaisto = 0;
+
  
 void setup() 
 { 
@@ -38,7 +39,6 @@ void setup()
     pinMode(A5, INPUT);
     pinMode(12, OUTPUT);
     digitalWrite(12,HIGH);
-    Serial.begin(9600);
     Serial1.begin(9600);
 }
 
@@ -79,6 +79,7 @@ void loop()
 { 
   //int val = analogRead(A5);    // read the input pin
  // Serial1.println(val);
+  int vaisto=0;
   if(Serial1.available()>2){
     Serial1.print(Serial1.read());
     
@@ -90,50 +91,15 @@ void loop()
       
     }
   }
-  //rotation -45 degree :: length 0.7
-  //
-  int tempx=x;
-  int tempy=y;
-  if(y>0){
-    digitalWrite(M1,HIGH);
-    digitalWrite(M2,HIGH);
-   
-  }
-  if(y<0){
-    digitalWrite(M1,LOW);
-    digitalWrite(M2,LOW);
-    tempy=-y;
-  }
- 
-  
-  if(tempx>=0){
-    
-    ohjausL=tempy;
-     ohjausR=(1-tempx/127)*tempy;
-  }
-  if(tempx<0){
-    tempx=-tempx;
-     ohjausR=tempy;
-     ohjausL=(1-tempx/127)*tempy;
-  }
- 
-  if(y==0){
-    analogWrite(E1, 0);   //PWM Speed Control
-  analogWrite(E2, 0);
-  }else{
-  analogWrite(E1, ohjausR*2);   //PWM Speed Control
-  analogWrite(E2, ohjausL*2); 
-   
-  }
-  Serial.println(ultrasonic.RangeInCentimeters);
-  /**
   int ohjausX=x;
   if(x<0){
    digitalWrite(M1,LOW);
    ohjausX=-x;
   } else {
   digitalWrite(M1,HIGH); 
+
   }  
+  
   
   int ohjausY=y;
   if(y<0){
@@ -141,18 +107,31 @@ void loop()
    ohjausY=-y;
   } else {
   digitalWrite(M2,HIGH); 
+ 
   }  
              
       analogWrite(E1, ohjausX);   //PWM Speed Control
       analogWrite(E2, ohjausY); 
 
-  */
+       if(ultrasonic.RangeInCentimeters<10){
+        vaisto=100;
+      }
+      if(vaisto>0){
+        vaisto--;
+            if(vaisto>50){
+            goBack(); 
+            }
+            if(vaisto<50){
+              goLeft();
+            }
+      }
+  
   delay(10);
   /*
   int i;
   for(i = 0 ; i <= 1000; i+=5) 
   { 
-    1
+    
     if(i<250){
        goStraight();
        } else {
