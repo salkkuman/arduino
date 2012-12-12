@@ -27,14 +27,16 @@ int M1 = 7;
 int E2 = 5;                         
 int M2 = 4;
 
+int automaagi = 1;
+
 signed char x = 0;
 signed char y = 0;
 signed char z = 0;
 int vaisto = 0;
 int ohjausL=0;
 int ohjausR=0;
-int tempx=0;
-int tempy=0;
+double tempx=0;
+double tempy=0;
 
 void setup() 
 { 
@@ -92,85 +94,113 @@ void goBack(unsigned int nopeus){
 
 }
 
+int zero(int xyz){
+
+}
+
 void loop() 
 { 
   //int val = analogRead(A5);    // read the input pin
   // Serial1.println(val);
 
-  if(Serial1.available()>2){
-    Serial1.print(Serial1.read());
+  if(Serial1.available()>3){
+
 
     if(Serial1.read()==0x80){
       x = Serial1.read();
       y = Serial1.read();
       z = Serial1.read(); 
-      Serial1.print(x);
-      Serial1.print(y);
-      Serial1.print(z);
-      
+      //Serial1.print(x);
+      //Serial1.print(y);
+      //Serial1.print(z);
+      //debugg
+      //Serial.print(x);
+      //Serial.print(y);
+      Serial.print(x);
+      Serial.print(" ");
+      Serial.print(y);
+      Serial.print(" ");
+      Serial.println(z);
+
     }
   }
 
   ultrasonic.MeasureInCentimeters(); 
-  Serial.println(ultrasonic.RangeInCentimeters+1);
-  if(ultrasonic.RangeInCentimeters<20){
+  //Serial.println(ultrasonic.RangeInCentimeters+1);
+  if(ultrasonic.RangeInCentimeters<20 && (z != 2)){
     vaisto=50;
   }
   if(vaisto>0){
     vaisto--;
-    Serial.print("vaisto: ");
-    Serial.print(vaisto);
+    //Serial.print("vaisto: ");
+    //Serial.print(vaisto);
     if(vaisto>25){
       goStraight(150); 
-      Serial.println(" Straight");
+      //Serial.println(" Straight");
     }
     if(vaisto<25){
-      Serial.println(" goLeft");
+      //Serial.println(" goLeft");
       goLeft(150);
     }
   } 
+  
+
   else {
+    if(z==8){
+    y=120;
+    x=0;
+    }
     tempx=x;
     tempy=y;
+    if(y<0){
+      digitalWrite(M1,HIGH);
+      digitalWrite(M2,HIGH);
+      tempy=-y;
+    }
     if(y>0){
-    digitalWrite(M1,HIGH);
-    digitalWrite(M2,HIGH);
-   
-  }
-  if(y<0){
-    digitalWrite(M1,LOW);
-    digitalWrite(M2,LOW);
-    tempy=-y;
-  }
+      digitalWrite(M1,LOW);
+      digitalWrite(M2,LOW);
+
+    }
     if(tempx>=0){
 
-      ohjausL=tempy;
-      ohjausR=(1-tempx/127)*tempy;
-    }
-    if(tempx<0){
-      tempx=-tempx;
       ohjausR=tempy;
       ohjausL=(1-tempx/127)*tempy;
     }
+    if(tempx<0){
+      tempx=-tempx;
+      ohjausL=tempy;
+      ohjausR=(1-tempx/127)*tempy;
+    }
 
+    
     if(y==0){
       analogWrite(E1, 0);   //PWM Speed Control
       analogWrite(E2, 0);
+    } 
+    else {
+
+      analogWrite(E1, ohjausL);   //PWM Speed Control
+      analogWrite(E2, ohjausR); 
     }
-    else{
-      if(z & 1==1){
+
+
+    if(z & 1==1 || z==8){
       analogWrite(E1, ohjausL*2);   //PWM Speed Control
       analogWrite(E2, ohjausR*2); 
-      } else {
-        analogWrite(E1, ohjaus);   //PWM Speed Control
-        analogWrite(E2, ohjaus); 
-    }
-    }
+    } 
+    if(z == 4) {
+      analogWrite(E1, ohjausL/2);   //PWM Speed Control
+      analogWrite(E2, ohjausR/2);        
+    } 
+
   }
 
   delay(10);
 
 }
+
+
 
 
 
