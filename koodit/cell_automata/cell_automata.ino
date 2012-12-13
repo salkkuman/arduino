@@ -14,7 +14,7 @@ struct Frame{
   unsigned char r[8][8];
   unsigned char g[8][8];
   unsigned char b[8][8];
-  
+
 };
 
 Frame frame;
@@ -32,53 +32,41 @@ void clearFrame() {
   }
 }
 
-
-
-
+//changes number to binary
 void num_to_8bit(int num, int bini[]){
-
-
-
   int h=num;
-
   for(int i=8;i!=0;i--){
-    //Serial.print(h%2);
-    //Serial.print(h/2);
     bini[i]=h%2;
     h=h/2;
   }
-  /*
-  for(int i=7;i>-1;i--){
-    bini[i]=0;
-
-  */
 
 }
 
 void cellularautomata(int array[][8], int rule){
-  //Serial.print("Cell alku bitti:");
+
   int bitti[8];
   num_to_8bit(rule, bitti);
-  for(int i=0;i<8;i++){
-   //Serial.print(bitti[i]);
-   //Serial.print(" ");
-  }
-  
+
+
   for(int i=7;i>-1;i--){
     for(int j=0;j<8;j++){
+      //clears new row
       if(i==0){
         array[i][j]=0;
       } 
       else {
+        //moves old rows one down
         array[i][j] = array[i-1][j];
       }
     } 
   }
+  //left right and middle bit for rule comparisons
   int l = 0;
   int r = 0;
   int m = 0;
-  
+
   for(int j=0;j<8;j++){
+    //finding the bits
     m = array[1][j];
     if(j>0){
       l = array[1][j - 1] ;
@@ -87,7 +75,7 @@ void cellularautomata(int array[][8], int rule){
       r = array[1][j + 1];
     }
 
-    
+    //applying the rules
     if(bitti[0]&& l && m && r){
       array[0][j] = 1;
     }
@@ -112,9 +100,9 @@ void cellularautomata(int array[][8], int rule){
     if(bitti[7]&& ! l && ! m && ! r){       
       array[0][j] = 1;
     }
-    
+
   }
-  
+
 }
 
 
@@ -124,7 +112,7 @@ void setup(){
   ET.begin(details(frame), &Serial);
 
   pinMode(13, OUTPUT);
-  
+
   randomSeed(analogRead(0));
   clearFrame();
 }
@@ -132,8 +120,8 @@ void setup(){
 
 
 void loop(){
-  
-  
+
+  //getting the mask
   cellularautomata(mask, rule);
   if(step%10==0){
     frame.r[0][5]=255;
@@ -141,30 +129,25 @@ void loop(){
   }
   for (int x = 0; x < 8; x++) {
     for (int y = 0; y < 8; y++) {
+      //putting the right bits on the frame
       frame.r[x][y] = mask[x][y];
-      //frame.g[x][y] = 0;
-      //frame.b[x][y] = 0;
-      
+
       if(mask[x][y]){
         frame.r[x][y]=255;
-        //Serial.print(mask[x][y]);
-      }else{
-        //Serial.print("0");
+
       }
-      //frame.r[x][y]=255;
+
     }
-    
-    //Serial.print(" ");
+
   }
- 
- 
-  //Serial.print(" ");
-  
-  //Serial.println();
+
   ET.sendData();
   //delay(50);
   step++;
 }
+
+
+
 
 
 
