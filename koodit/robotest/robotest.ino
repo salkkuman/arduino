@@ -26,13 +26,15 @@ int E1 = 6;
 int M1 = 7;
 int E2 = 5;                         
 int M2 = 4;
-
+//if 1 the car drives automatically
 int automaagi = 1;
 
 signed char x = 0;
 signed char y = 0;
 signed char z = 0;
+//if vaisto goes 1 then the car will evade obstacle and cannot by driven by joystick
 int vaisto = 0;
+//control signals to motors left and right
 int ohjausL=0;
 int ohjausR=0;
 double tempx=0;
@@ -50,7 +52,7 @@ void setup()
 }
 
 void goRight(unsigned int nopeus){
-  //digitalWrite(M1,LOW);
+  
   digitalWrite(M1,HIGH);   
   digitalWrite(M2,HIGH);       
   if(nopeus>255){
@@ -94,14 +96,8 @@ void goBack(unsigned int nopeus){
 
 }
 
-int zero(int xyz){
-
-}
-
 void loop() 
 { 
-  //int val = analogRead(A5);    // read the input pin
-  // Serial1.println(val);
 
   if(Serial1.available()>3){
 
@@ -110,12 +106,7 @@ void loop()
       x = Serial1.read();
       y = Serial1.read();
       z = Serial1.read(); 
-      //Serial1.print(x);
-      //Serial1.print(y);
-      //Serial1.print(z);
-      //debugg
-      //Serial.print(x);
-      //Serial.print(y);
+
       Serial.print(x);
       Serial.print(" ");
       Serial.print(y);
@@ -126,20 +117,16 @@ void loop()
   }
 
   ultrasonic.MeasureInCentimeters(); 
-  //Serial.println(ultrasonic.RangeInCentimeters+1);
+//if there is obstacle closer than 20cm the robot will back off and then turn little
   if(ultrasonic.RangeInCentimeters<20 && (z != 2)){
     vaisto=50;
   }
   if(vaisto>0){
     vaisto--;
-    //Serial.print("vaisto: ");
-    //Serial.print(vaisto);
     if(vaisto>25){
       goStraight(150); 
-      //Serial.println(" Straight");
     }
     if(vaisto<25){
-      //Serial.println(" goLeft");
       goLeft(150);
     }
   } 
@@ -150,8 +137,10 @@ void loop()
     y=120;
     x=0;
     }
+    //we need to save x and y to temp because x and y do not necessarily get updated every cycle
     tempx=x;
     tempy=y;
+    //deciding direction and speed
     if(y<0){
       digitalWrite(M1,HIGH);
       digitalWrite(M2,HIGH);
@@ -162,6 +151,7 @@ void loop()
       digitalWrite(M2,LOW);
 
     }
+    //turning left and right by reducing speed from other tire
     if(tempx>=0){
 
       ohjausR=tempy;
@@ -184,11 +174,12 @@ void loop()
       analogWrite(E2, ohjausR); 
     }
 
-
+//boost button
     if(z & 1==1 || z==8){
       analogWrite(E1, ohjausL*2);   //PWM Speed Control
       analogWrite(E2, ohjausR*2); 
-    } 
+    }
+   //slowmode button 
     if(z == 4) {
       analogWrite(E1, ohjausL/2);   //PWM Speed Control
       analogWrite(E2, ohjausR/2);        
